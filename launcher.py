@@ -21,7 +21,7 @@ def open_browser():
     import subprocess
     import platform
 
-    url = 'http://127.0.0.1:5001'
+    url = 'http://127.0.0.1:8080'
 
     # On Windows, try to launch Chrome/Edge with specific window size
     if platform.system() == 'Windows':
@@ -81,13 +81,13 @@ def main():
 
     print("\nServer started!")
     print("Opening browser...")
-    print("\nThe app is now running at: http://127.0.0.1:5001")
+    print("\nThe app is now running at: http://127.0.0.1:8080")
     print("\nPress CTRL+C to stop the server\n")
 
     # Start the production server (Waitress)
     # This is better than Flask's dev server for production use
     try:
-        serve(app, host='127.0.0.1', port=5001, threads=4)
+        serve(app, host='127.0.0.1', port=8080, threads=4)
     except KeyboardInterrupt:
         print("\n\nShutting down...")
         sys.exit(0)
