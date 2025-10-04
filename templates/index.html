@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Junay 4K Downloader</title>
+    <style>
+        /* iOS-style dark mode design with purple accents */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 8px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8B5CF6;
+            margin-bottom: 3px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #A0A0A0;
+        }
+
+        /* Card Sections */
+        .card {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+
+        .card-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Input Fields */
+        input[type="text"],
+        select {
+            width: 100%;
+            height: 40px;
+            background: #333333;
+            border: none;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 13px;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            background: #3a3a3a;
+        }
+
+        input[type="text"]::placeholder {
+            color: #A0A0A0;
+        }
+
+        /* Select Dropdown */
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B5CF6' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        option {
+            background: #333333;
+            color: #ffffff;
+        }
+
+        /* Location Section */
+        .location-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .location-input {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-purple {
+            background: #8B5CF6;
+            color: #ffffff;
+            min-width: 90px;
+        }
+
+        .btn-purple:hover {
+            background: #7C3AED;
+        }
+
+        .btn-purple:active {
+            transform: scale(0.98);
+        }
+
+        .btn-download {
+            width: 100%;
+            height: 48px;
+            background: #8B5CF6 !important;
+            color: #ffffff !important;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            margin-top: 0px;
+            border: 2px solid #8B5CF6;
+            display: block;
+        }
+
+        .btn-download:hover {
+            background: #7C3AED !important;
+        }
+
+        .btn-download:disabled {
+            background: #555555 !important;
+            cursor: not-allowed;
+        }
+
+        /* Progress Section */
+        .progress-card {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #A0A0A0;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #333333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #8B5CF6;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #505050;
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .message.success {
+            background: #065f46;
+            color: #d1fae5;
+        }
+
+        .message.error {
+            background: #7f1d1d;
+            color: #fee2e2;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .downloading .progress-text {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">JUNAY 4K</div>
+            <div class="subtitle">Download YouTube videos in stunning quality</div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div id="message" class="message"></div>
+
+        <!-- URL Input -->
+        <div class="card">
+            <label class="card-label">YouTube URL</label>
+            <input type="text" id="urlInput" placeholder="https://youtube.com/watch?v=...">
+        </div>
+
+        <!-- Quality Selection -->
+        <div class="card">
+            <label class="card-label">Video Quality</label>
+            <select id="qualitySelect">
+                <option value="2160p (4K)" selected>2160p (4K)</option>
+                <option value="1440p (2K)">1440p (2K)</option>
+                <option value="1080p (Full HD)">1080p (Full HD)</option>
+                <option value="720p (HD)">720p (HD)</option>
+                <option value="Best Available">Best Available</option>
+            </select>
+        </div>
+
+        <!-- Save Location -->
+        <div class="card">
+            <label class="card-label">Save Location</label>
+            <div class="location-row">
+                <input type="text" id="locationInput" class="location-input" placeholder="/path/to/folder" value="">
+                <button class="btn btn-purple" onclick="resetLocation()">Reset</button>
+            </div>
+            <small style="color: #A0A0A0; font-size: 11px; margin-top: 8px; display: block;">Leave empty for Downloads folder, or enter full path (e.g., /Users/YourName/Videos)</small>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-card">
+            <div id="progressText" class="progress-text">Ready to download</div>
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Download Button -->
+        <button id="downloadBtn" class="btn btn-download" onclick="startDownload()">
+            Download Video
+        </button>
+
+        <!-- Footer -->
+        <div class="footer">
+            Built by George for Junay  •  Powered by yt-dlp
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let downloadId = null;
+        let progressInterval = null;
+
+        // Show message (success or error)
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type} show`;
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageEl.className = 'message';
+            }, 5000);
+        }
+
+        // Update progress UI
+        function updateProgress(data) {
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            if (data.status === 'downloading') {
+                progressText.textContent = `Downloading... ${data.progress.toFixed(1)}% | ${data.speed.toFixed(2)} MB/s | ETA: ${data.eta}s`;
+                progressBar.style.width = `${data.progress}%`;
+            } else if (data.status === 'processing') {
+                progressText.textContent = 'Processing... (merging video & audio)';
+                progressBar.style.width = '100%';
+            } else if (data.status === 'completed') {
+                progressText.textContent = `Download Complete! "${data.title}"`;
+                progressBar.style.width = '100%';
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download Video';
+
+                // Stop polling
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+
+                showMessage(`Successfully downloaded "${data.title}" to your Downloads folder!`, 'success');
+            } else if (data.status === 'error') {
+                progressText.textContent = 'Download Failed';
+                progressBar.style.width = '0%';
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download Video';
+
+                // Stop polling
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+
+                showMessage(`Error: ${data.error}`, 'error');
+            }
+        }
+
+        // Poll for progress updates
+        function pollProgress(downloadId) {
+            progressInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/progress/${downloadId}`);
+                    const data = await response.json();
+                    updateProgress(data);
+
+                    // Stop polling if completed or error
+                    if (data.status === 'completed' || data.status === 'error') {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
+                } catch (error) {
+                    console.error('Error polling progress:', error);
+                }
+            }, 500);  // Poll every 500ms
+        }
+
+        // Start download
+        // Reset location to default
+        function resetLocation() {
+            document.getElementById('locationInput').value = '';
+        }
+
+        async function startDownload() {
+            const url = document.getElementById('urlInput').value.trim();
+            const quality = document.getElementById('qualitySelect').value;
+            const location = document.getElementById('locationInput').value.trim();
+            const downloadBtn = document.getElementById('downloadBtn');
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+
+            // Validate URL
+            if (!url) {
+                showMessage('Please enter a YouTube URL', 'error');
+                return;
+            }
+
+            // Disable button and update UI
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = 'Downloading...';
+            progressText.textContent = 'Starting download...';
+            progressBar.style.width = '0%';
+
+            try {
+                // Start download
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        quality: quality,
+                        save_path: location || undefined  // Use custom path or let server use default
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Start polling for progress
+                    downloadId = data.download_id;
+                    pollProgress(downloadId);
+                } else {
+                    // Handle error
+                    showMessage(data.error || 'Failed to start download', 'error');
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = 'Download Video';
+                }
+            } catch (error) {
+                showMessage('Network error: ' + error.message, 'error');
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download Video';
+            }
+        }
+
+        // Allow Enter key to trigger download
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startDownload();
+            }
+        });
+    </script>
+</body>
+</html>
